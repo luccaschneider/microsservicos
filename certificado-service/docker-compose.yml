@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  certificado-service:
+    build: .
+    ports:
+      - "8081:8081"
+    environment:
+      - PORT=8081
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=eventos_db
+      - DB_USER=eventos_user
+      - DB_PASSWORD=secret
+      - JWT_SECRET=mySecretKeyForJWTTokenGenerationThatShouldBeAtLeast256BitsLong
+      - SERVER_ADDRESS=localhost
+    depends_on:
+      - postgres
+    networks:
+      - eventos-network
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_DB=eventos_db
+      - POSTGRES_USER=eventos_user
+      - POSTGRES_PASSWORD=secret
+    ports:
+      - "8371:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - eventos-network
+
+volumes:
+  postgres_data:
+
+networks:
+  eventos-network:
+    external: true
+
+
+
