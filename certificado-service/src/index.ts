@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 8081;
 
 // Configurar CORS para permitir requisições do frontend
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://logos-hormone-deer-proud.trycloudflare.com'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -33,7 +33,7 @@ app.get('/health', (req, res) => {
 
 // Preflight para health check
 app.options('/health', cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000', 'https://logos-hormone-deer-proud.trycloudflare.com'],
   credentials: true,
   methods: ['GET', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
