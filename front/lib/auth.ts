@@ -82,5 +82,7 @@ export const authOptions: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET || 'your-secret-key-change-in-production',
   // Usar URL dinâmica baseada na requisição (suporta túnel Cloudflare)
   trustHost: true, // Permite usar a URL do host da requisição
+  // Prevenir erros de configuração que causam redirecionamentos incorretos
+  debug: process.env.NODE_ENV === 'development',
 };
 
