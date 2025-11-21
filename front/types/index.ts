@@ -69,6 +69,7 @@ export interface InscricaoCreateDTO {
   usuarioId?: string;
   eventoId: string;
   offline?: boolean;
+  senhaTemporaria?: string;
 }
 
 export interface Presenca {

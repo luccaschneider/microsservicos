@@ -221,5 +221,77 @@ public class EmailTemplate {
             usuario.getEmail()
         );
     }
+
+    public String templateInscricaoComSenha(Inscricao inscricao, String senhaTemporaria) {
+        String dataInicio = inscricao.getEvento().getDataInicio().format(DATE_FORMATTER);
+        String dataFim = inscricao.getEvento().getDataFim() != null 
+            ? inscricao.getEvento().getDataFim().format(DATE_FORMATTER) 
+            : "A definir";
+        String dataInscricao = inscricao.getDataInscricao().format(DATE_FORMATTER);
+        
+        return String.format(
+            "<!DOCTYPE html>" +
+            "<html>" +
+            "<head>" +
+            "<meta charset='UTF-8'>" +
+            "<style>" +
+            "body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }" +
+            ".container { max-width: 600px; margin: 0 auto; padding: 20px; }" +
+            ".header { background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }" +
+            ".content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }" +
+            ".info-box { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #667eea; }" +
+            ".senha-box { background: #fff3cd; border: 2px solid #ffc107; padding: 20px; margin: 20px 0; border-radius: 8px; text-align: center; }" +
+            ".senha-box .senha { font-size: 24px; font-weight: bold; color: #856404; font-family: 'Courier New', monospace; letter-spacing: 2px; }" +
+            ".info-item { margin: 10px 0; }" +
+            ".info-label { font-weight: bold; color: #667eea; }" +
+            ".warning { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px; }" +
+            ".footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }" +
+            "</style>" +
+            "</head>" +
+            "<body>" +
+            "<div class='container'>" +
+            "<div class='header'>" +
+            "<h1>✓ Inscrição Confirmada</h1>" +
+            "</div>" +
+            "<div class='content'>" +
+            "<p>Olá <strong>%s</strong>,</p>" +
+            "<p>Sua inscrição no evento foi confirmada com sucesso!</p>" +
+            "<div class='info-box'>" +
+            "<div class='info-item'><span class='info-label'>Evento:</span> %s</div>" +
+            "<div class='info-item'><span class='info-label'>Data de Início:</span> %s</div>" +
+            "<div class='info-item'><span class='info-label'>Data de Término:</span> %s</div>" +
+            "<div class='info-item'><span class='info-label'>Data da Inscrição:</span> %s</div>" +
+            "</div>" +
+            "<div class='senha-box'>" +
+            "<p style='margin: 0 0 10px 0; font-weight: bold; color: #856404;'>🔐 Sua Senha Temporária:</p>" +
+            "<div class='senha'>%s</div>" +
+            "<p style='margin: 10px 0 0 0; font-size: 12px; color: #856404;'>Use esta senha para fazer login no sistema</p>" +
+            "</div>" +
+            "<div class='warning'>" +
+            "<p><strong>⚠️ Importante:</strong></p>" +
+            "<ul style='margin: 10px 0; padding-left: 20px;'>" +
+            "<li>Esta é uma senha temporária gerada automaticamente</li>" +
+            "<li>Recomendamos que você altere sua senha após o primeiro login</li>" +
+            "<li>Guarde esta senha em local seguro</li>" +
+            "</ul>" +
+            "</div>" +
+            "<p>Guarde este e-mail como comprovante de sua inscrição e para acessar sua conta.</p>" +
+            "<p>Nos vemos no evento!</p>" +
+            "<div class='footer'>" +
+            "<p>Atenciosamente,<br><strong>Equipe EventHub</strong></p>" +
+            "<p>Sistema de Gestão de Eventos</p>" +
+            "</div>" +
+            "</div>" +
+            "</div>" +
+            "</body>" +
+            "</html>",
+            inscricao.getUsuario().getNome(),
+            inscricao.getEvento().getNome(),
+            dataInicio,
+            dataFim,
+            dataInscricao,
+            senhaTemporaria
+        );
+    }
 }
 

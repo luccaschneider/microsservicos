@@ -32,6 +32,11 @@ public class InscricaoService {
 
     @Transactional
     public InscricaoDTO criarInscricao(UUID usuarioId, UUID eventoId, boolean offline) {
+        return criarInscricao(usuarioId, eventoId, offline, null);
+    }
+
+    @Transactional
+    public InscricaoDTO criarInscricao(UUID usuarioId, UUID eventoId, boolean offline, String senhaTemporaria) {
         // Verificar se já existe uma inscrição não cancelada
         if (inscricaoRepository.existsByUsuarioIdAndEventoIdAndCanceladaFalse(usuarioId, eventoId)) {
             throw new RuntimeException("Usuário já está inscrito neste evento");
@@ -66,7 +71,12 @@ public class InscricaoService {
 
         // Enviar email apenas se não for offline
         if (!offline) {
-            emailService.enviarEmailInscricao(inscricao);
+            // Se houver senha temporária, enviar email com senha
+            if (senhaTemporaria != null && !senhaTemporaria.isEmpty()) {
+                emailService.enviarEmailInscricaoComSenha(inscricao, senhaTemporaria);
+            } else {
+                emailService.enviarEmailInscricao(inscricao);
+            }
         }
 
         return toDTO(inscricao);

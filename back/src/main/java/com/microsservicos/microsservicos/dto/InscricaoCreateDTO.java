@@ -19,5 +19,7 @@ public class InscricaoCreateDTO {
     private UUID eventoId;
 
     private Boolean offline = false;
+    
+    private String senhaTemporaria; // Opcional - senha temporária para novo usuário
 }
 

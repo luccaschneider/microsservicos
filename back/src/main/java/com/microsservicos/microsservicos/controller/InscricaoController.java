@@ -39,7 +39,8 @@ public class InscricaoController {
         InscricaoDTO inscricao = inscricaoService.criarInscricao(
                 usuarioId,
                 dto.getEventoId(),
-                dto.getOffline() != null && dto.getOffline()
+                dto.getOffline() != null && dto.getOffline(),
+                dto.getSenhaTemporaria()
         );
         return ResponseEntity.ok(inscricao);
     }
@@ -54,7 +55,8 @@ public class InscricaoController {
         InscricaoDTO inscricao = inscricaoService.criarInscricao(
                 dto.getUsuarioId(),
                 dto.getEventoId(),
-                dto.getOffline() != null && dto.getOffline()
+                dto.getOffline() != null && dto.getOffline(),
+                dto.getSenhaTemporaria()
         );
         return ResponseEntity.ok(inscricao);
     }

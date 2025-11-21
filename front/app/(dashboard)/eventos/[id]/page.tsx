@@ -774,9 +774,10 @@ export default function EventoDetailPage() {
                           // Criar cliente autenticado
                           const javaClient = new JavaClient(() => loginResponse.token);
                           
-                          // Inscrever o usuário
+                          // Inscrever o usuário com senha temporária para enviar no email
                           const novaInscricao = await javaClient.createInscricao({
                             eventoId: evento.id,
+                            senhaTemporaria: senhaTemporaria,
                           });
                           
                           setInscricoes((prev) => [...prev, novaInscricao]);
@@ -791,11 +792,12 @@ export default function EventoDetailPage() {
                             window.location.reload();
                           }, 100);
                         } else {
-                          // Se já estava logado, inscrever como terceiro
+                          // Se já estava logado, inscrever como terceiro com senha temporária para enviar no email
                           const javaClient = new JavaClient(() => auth.accessToken as string);
                           const novaInscricao = await javaClient.createInscricaoTerceiro({
                             usuarioId: novoUsuario.id,
                             eventoId: evento.id,
+                            senhaTemporaria: senhaTemporaria,
                           });
                           
                           setInscricoes((prev) => [...prev, novaInscricao]);

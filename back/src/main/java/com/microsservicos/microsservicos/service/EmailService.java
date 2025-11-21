@@ -62,6 +62,16 @@ public class EmailService {
         }
     }
 
+    public void enviarEmailInscricaoComSenha(Inscricao inscricao, String senhaTemporaria) {
+        try {
+            String corpo = emailTemplate.templateInscricaoComSenha(inscricao, senhaTemporaria);
+            enviarEmail(inscricao.getUsuario().getEmail(), "Inscrição Confirmada - Sua Senha de Acesso", corpo);
+        } catch (Exception e) {
+            // Log do erro mas não interrompe o fluxo
+            System.err.println("Erro ao enviar email de inscrição com senha: " + e.getMessage());
+        }
+    }
+
     public void enviarEmail(String destinatario, String assunto, String corpo) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
