@@ -40,6 +40,18 @@ public class LogAcesso {
 
     private Integer statusCode;
 
+    @Column(columnDefinition = "TEXT")
+    private String requestBody;
+
+    @Column(columnDefinition = "TEXT")
+    private String responseBody;
+
+    @Column(columnDefinition = "TEXT")
+    private String requestHeaders;
+
+    @Column(columnDefinition = "TEXT")
+    private String responseHeaders;
+
     @PrePersist
     protected void onCreate() {
         if (timestamp == null) {

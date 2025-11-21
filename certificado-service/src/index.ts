@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import certificadoRoutes from './routes/certificado.routes';
+import { loggingMiddleware } from './middleware/logging';
 
 dotenv.config();
 
@@ -17,6 +18,9 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Middleware de logging (deve vir antes das rotas)
+app.use(loggingMiddleware);
 
 // Health check - endpoint público para verificação de status
 app.get('/health', (req, res) => {
