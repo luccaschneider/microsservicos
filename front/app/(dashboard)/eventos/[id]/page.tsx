@@ -785,7 +785,11 @@ export default function EventoDetailPage() {
                           setDadosTerceiro({ nome: '', email: '', telefone: '' });
                           
                           // Recarregar para atualizar sessão
-                          window.location.reload();
+                          router.refresh();
+                          // Usar setTimeout para garantir que o refresh foi processado
+                          setTimeout(() => {
+                            window.location.reload();
+                          }, 100);
                         } else {
                           // Se já estava logado, inscrever como terceiro
                           const javaClient = new JavaClient(() => auth.accessToken as string);

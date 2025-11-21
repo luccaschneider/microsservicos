@@ -2,6 +2,16 @@ import type { NextAuthConfig } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { JavaClient } from './api/java-client';
 
+// Função para obter a URL base dinamicamente (suporta túnel Cloudflare)
+const getBaseUrl = () => {
+  // No servidor, usar variável de ambiente ou header da requisição
+  if (typeof window === 'undefined') {
+    return process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  }
+  // No cliente, usar a origem atual do navegador
+  return window.location.origin;
+};
+
 export const authOptions: NextAuthConfig = {
   providers: [
     Credentials({
@@ -70,5 +80,7 @@ export const authOptions: NextAuthConfig = {
     maxAge: 24 * 60 * 60, // 24 horas
   },
   secret: process.env.NEXTAUTH_SECRET || 'your-secret-key-change-in-production',
+  // Usar URL dinâmica baseada na requisição (suporta túnel Cloudflare)
+  trustHost: true, // Permite usar a URL do host da requisição
 };
 

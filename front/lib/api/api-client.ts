@@ -132,7 +132,8 @@ export const createJavaClient = (getToken?: () => string | null): AxiosInstance 
       if (error.response?.status === 401) {
         // Token inválido ou expirado
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          // Usar a origem atual do navegador para garantir que redireciona para a URL correta
+          window.location.href = `${window.location.origin}/login`;
         }
       }
       return Promise.reject(error);
