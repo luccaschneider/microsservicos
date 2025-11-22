@@ -41,6 +41,12 @@ export function WifiToggle() {
     
     // Se está desligando o modo offline manual (voltando para online)
     if (currentManualMode && !newMode) {
+      // Desativar modo manual primeiro
+      setManualOfflineMode(false);
+      
+      // Aguardar um pouco para garantir que o estado foi atualizado
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
       // Verificar se há dados pendentes para sincronizar
       try {
         const [usuarios, inscricoes, presencas] = await Promise.all([
@@ -50,32 +56,36 @@ export function WifiToggle() {
         ]);
         const totalPendente = usuarios.length + inscricoes.length + presencas.length;
         
-        // Desativar modo manual primeiro
-        setManualOfflineMode(false);
-        
         // Se há dados pendentes e conexão real está online, sincronizar
         if (totalPendente > 0 && navigator.onLine) {
-          // Pequeno delay para garantir que o estado foi atualizado
-          setTimeout(async () => {
-            try {
-              if (auth.accessToken) {
-                const syncService = new SyncService(
+          try {
+            console.log(`Iniciando sincronização de ${totalPendente} itens pendentes...`);
+            
+            // Criar serviço de sincronização
+            const syncService = auth.accessToken && auth.user
+              ? new SyncService(
                   () => auth.accessToken as string,
                   () => auth.user?.id || null
-                );
-                await syncService.syncOfflineData();
-              } else {
-                const syncService = new SyncService(() => null, () => null);
-                await syncService.syncOfflineData();
-              }
-            } catch (error) {
-              console.error('Erro ao sincronizar após ligar WiFi:', error);
-            }
-          }, 500);
+                )
+              : new SyncService(() => null, () => null);
+            
+            // Sincronizar dados
+            const resultado = await syncService.syncOfflineData();
+            console.log('Sincronização concluída:', resultado);
+            
+            // Aguardar um pouco antes de recarregar para garantir que tudo foi processado
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          } catch (error: any) {
+            console.error('Erro ao sincronizar após ligar WiFi:', error);
+            alert(`Erro ao sincronizar dados: ${error.message || 'Erro desconhecido'}`);
+          }
+        } else if (totalPendente > 0 && !navigator.onLine) {
+          alert('Há dados pendentes para sincronizar, mas você não está conectado à internet.');
         }
       } catch (error) {
         console.error('Erro ao verificar dados pendentes:', error);
-        setManualOfflineMode(false);
       }
     } else {
       // Ativando modo offline manual

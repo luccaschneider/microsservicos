@@ -12,8 +12,8 @@ import java.util.UUID;
 
 @Repository
 public interface LogAcessoRepository extends JpaRepository<LogAcesso, UUID>, JpaSpecificationExecutor<LogAcesso> {
-    List<LogAcesso> findByUsuarioId(UUID usuarioId);
-    Page<LogAcesso> findByUsuarioId(UUID usuarioId, Pageable pageable);
+    List<LogAcesso> findByUsuarioIdOrderByTimestampDesc(UUID usuarioId);
+    Page<LogAcesso> findByUsuarioIdOrderByTimestampDesc(UUID usuarioId, Pageable pageable);
     List<LogAcesso> findByEndpoint(String endpoint);
 }
 

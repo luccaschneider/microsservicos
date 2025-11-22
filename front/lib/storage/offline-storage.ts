@@ -39,38 +39,53 @@ export async function initOfflineDB(): Promise<IDBPDatabase<OfflineDB>> {
     return dbInstance;
   }
 
-  dbInstance = await openDB<OfflineDB>('eventos-offline', 1, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains('inscricoes')) {
-        db.createObjectStore('inscricoes', { keyPath: 'id' });
-      }
-      if (!db.objectStoreNames.contains('presencas')) {
-        db.createObjectStore('presencas', { keyPath: 'id' });
-      }
-      if (!db.objectStoreNames.contains('usuarios')) {
-        db.createObjectStore('usuarios', { keyPath: 'id' });
-      }
-    },
-  });
+  try {
+    dbInstance = await openDB<OfflineDB>('eventos-offline', 1, {
+      upgrade(db) {
+        // Criar stores se não existirem
+        if (!db.objectStoreNames.contains('inscricoes')) {
+          db.createObjectStore('inscricoes', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('presencas')) {
+          db.createObjectStore('presencas', { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains('usuarios')) {
+          db.createObjectStore('usuarios', { keyPath: 'id' });
+        }
+      },
+    });
 
-  return dbInstance;
+    console.log('IndexedDB inicializado com sucesso');
+    return dbInstance;
+  } catch (error) {
+    console.error('Erro ao inicializar IndexedDB:', error);
+    throw error;
+  }
 }
 
 // Inscrições offline
 export async function saveInscricaoOffline(
   inscricaoData: InscricaoCreateDTO & { usuarioId?: string }
 ): Promise<string> {
-  const db = await initOfflineDB();
-  const id = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
-  await db.put('inscricoes', {
-    id,
-    data: inscricaoData,
-    timestamp: Date.now(),
-    sincronizado: false,
-  });
-
-  return id;
+  try {
+    const db = await initOfflineDB();
+    const id = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const item = {
+      id,
+      data: inscricaoData,
+      timestamp: Date.now(),
+      sincronizado: false,
+    };
+    
+    await db.put('inscricoes', item);
+    console.log('Inscrição salva offline:', id, inscricaoData);
+    
+    return id;
+  } catch (error) {
+    console.error('Erro ao salvar inscrição offline:', error);
+    throw error;
+  }
 }
 
 export async function getInscricoesOffline(): Promise<Array<{
@@ -113,22 +128,30 @@ export async function savePresencaOffline(
   presencaData: PresencaCreateDTO,
   inscricaoId: string
 ): Promise<string> {
-  const db = await initOfflineDB();
-  const id = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
-  const dataToSave: PresencaCreateDTO & { inscricaoId: string } = {
-    ...presencaData,
-    inscricaoId: presencaData.inscricaoId || inscricaoId,
-  } as PresencaCreateDTO & { inscricaoId: string };
-  
-  await db.put('presencas', {
-    id,
-    data: dataToSave,
-    timestamp: Date.now(),
-    sincronizado: false,
-  });
-
-  return id;
+  try {
+    const db = await initOfflineDB();
+    const id = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const dataToSave: PresencaCreateDTO & { inscricaoId: string } = {
+      ...presencaData,
+      inscricaoId: presencaData.inscricaoId || inscricaoId,
+    } as PresencaCreateDTO & { inscricaoId: string };
+    
+    const item = {
+      id,
+      data: dataToSave,
+      timestamp: Date.now(),
+      sincronizado: false,
+    };
+    
+    await db.put('presencas', item);
+    console.log('Presença salva offline:', id, dataToSave);
+    
+    return id;
+  } catch (error) {
+    console.error('Erro ao salvar presença offline:', error);
+    throw error;
+  }
 }
 
 export async function getPresencasOffline(): Promise<Array<{
@@ -179,29 +202,37 @@ export async function removePresencaOffline(id: string): Promise<void> {
 export async function saveUsuarioOffline(
   usuarioData: { nome: string; email: string; senha: string; telefone?: string }
 ): Promise<string> {
-  const db = await initOfflineDB();
-  const id = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
-  const usuarioToSave: Usuario & { senha: string } = {
-    id,
-    nome: usuarioData.nome,
-    email: usuarioData.email,
-    senha: usuarioData.senha, // Senha em texto plano (será hashada pelo backend na sincronização)
-    telefone: usuarioData.telefone,
+  try {
+    const db = await initOfflineDB();
+    const id = `offline_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    const usuarioToSave: Usuario & { senha: string } = {
+      id,
+      nome: usuarioData.nome,
+      email: usuarioData.email,
+      senha: usuarioData.senha, // Senha em texto plano (será hashada pelo backend na sincronização)
+      telefone: usuarioData.telefone,
     dadosCompletos: false,
     criadoOffline: true,
     sincronizado: false,
     dataCriacao: new Date().toISOString(),
   };
   
-  await db.put('usuarios', {
-    id,
-    data: usuarioToSave,
-    timestamp: Date.now(),
-    sincronizado: false,
-  });
-
-  return id;
+    const item = {
+      id,
+      data: usuarioToSave,
+      timestamp: Date.now(),
+      sincronizado: false,
+    };
+    
+    await db.put('usuarios', item);
+    console.log('Usuário salvo offline:', id, usuarioData.email);
+    
+    return id;
+  } catch (error) {
+    console.error('Erro ao salvar usuário offline:', error);
+    throw error;
+  }
 }
 
 export async function getUsuariosOffline(): Promise<Array<{

@@ -171,9 +171,33 @@ export default function EventoDetailPage() {
             // Salvar todas no cache para uso futuro
             await cacheInscricoes(todasInscricoes);
           } catch (inscErr) {
-            // Se falhar, tentar buscar do cache
+            // Se falhar, tentar buscar do cache e offline
             const cachedInscricoes = await getCachedInscricoes();
             minhaInscricao = cachedInscricoes?.find((i) => i.eventoId === id && !i.cancelada);
+            
+            // Também verificar inscrições offline não sincronizadas
+            if (!minhaInscricao) {
+              try {
+                const { getInscricoesNaoSincronizadas } = await import('@/lib/storage/offline-storage');
+                const inscricoesOffline = await getInscricoesNaoSincronizadas();
+                const inscricaoOffline = inscricoesOffline.find((i) => i.data.eventoId === id);
+                if (inscricaoOffline && eventoData) {
+                  minhaInscricao = {
+                    id: inscricaoOffline.id,
+                    usuarioId: inscricaoOffline.data.usuarioId || auth.user?.id || '',
+                    eventoId: inscricaoOffline.data.eventoId,
+                    eventoNome: eventoData.nome,
+                    dataInscricao: new Date(inscricaoOffline.timestamp).toISOString(),
+                    cancelada: false,
+                    criadaOffline: true,
+                    sincronizado: inscricaoOffline.sincronizado,
+                  };
+                }
+              } catch (offlineErr) {
+                // Ignorar
+              }
+            }
+            
             setInscricoes(minhaInscricao ? [minhaInscricao] : []);
           }
         } else {

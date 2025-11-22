@@ -55,8 +55,13 @@ public class LogAcessoService {
                 cb.lessThanOrEqualTo(root.get("timestamp"), dataFim));
         }
 
-        Pageable finalPageable = pageable;
-        return logAcessoRepository.findAll(spec, finalPageable).map(this::toDTO);
+        // Garantir ordenação por timestamp decrescente (mais recentes primeiro)
+        Pageable sortedPageable = org.springframework.data.domain.PageRequest.of(
+            pageable.getPageNumber(),
+            pageable.getPageSize(),
+            org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "timestamp")
+        );
+        return logAcessoRepository.findAll(spec, sortedPageable).map(this::toDTO);
     }
 
     public LogAcessoDTO buscarLog(UUID id) {
@@ -67,7 +72,13 @@ public class LogAcessoService {
 
     public Page<LogAcessoDTO> listarLogsDoUsuario(Pageable pageable) {
         UUID usuarioId = SecurityUtil.getCurrentUserId();
-        return logAcessoRepository.findByUsuarioId(usuarioId, pageable).map(this::toDTO);
+        // Garantir ordenação por timestamp decrescente (mais recentes primeiro)
+        Pageable sortedPageable = org.springframework.data.domain.PageRequest.of(
+            pageable.getPageNumber(),
+            pageable.getPageSize(),
+            org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "timestamp")
+        );
+        return logAcessoRepository.findByUsuarioIdOrderByTimestampDesc(usuarioId, sortedPageable).map(this::toDTO);
     }
 
     private LogAcessoDTO toDTO(LogAcesso log) {

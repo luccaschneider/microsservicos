@@ -140,22 +140,38 @@ export class SyncService {
     try {
       const response = await this.javaClient.uploadSync(uploadDTO);
 
-      // Marcar como sincronizado
-      for (const usuario of usuariosOffline) {
-        await markUsuarioSincronizado(usuario.id);
+      // Marcar como sincronizado APENAS os itens que foram enviados e processados com sucesso
+      // Usuários sincronizados
+      if (response.usuariosProcessados && response.usuariosProcessados > 0) {
+        for (let i = 0; i < Math.min(response.usuariosProcessados, usuariosOffline.length); i++) {
+          await markUsuarioSincronizado(usuariosOffline[i].id);
+        }
       }
 
-      for (const inscricao of inscricoesOffline) {
-        await markInscricaoSincronizada(inscricao.id);
+      // Inscrições sincronizadas
+      if (response.inscricoesProcessadas && response.inscricoesProcessadas > 0) {
+        for (let i = 0; i < Math.min(response.inscricoesProcessadas, inscricoesOffline.length); i++) {
+          await markInscricaoSincronizada(inscricoesOffline[i].id);
+        }
       }
 
-      for (const presenca of presencasOffline) {
-        await markPresencaSincronizada(presenca.id);
+      // Presenças sincronizadas
+      if (response.presencasProcessadas && response.presencasProcessadas > 0) {
+        for (let i = 0; i < Math.min(response.presencasProcessadas, presencasOffline.length); i++) {
+          await markPresencaSincronizada(presencasOffline[i].id);
+        }
       }
+
+      console.log('Sincronização concluída:', {
+        usuarios: response.usuariosProcessados || 0,
+        inscricoes: response.inscricoesProcessadas || 0,
+        presencas: response.presencasProcessadas || 0,
+      });
 
       return response;
     } catch (error: any) {
       console.error('Erro ao sincronizar:', error);
+      // Não marcar como sincronizado se houve erro
       throw error;
     }
   }

@@ -46,32 +46,27 @@ export default function LogsPage() {
   const [selectedLog, setSelectedLog] = useState<LogAcesso | null>(null);
 
   useEffect(() => {
-    if (auth.accessToken) {
+    if (auth.accessToken && auth.user) {
       carregarLogs();
     }
-  }, [auth.accessToken, page, filtros]);
+  }, [auth.accessToken, auth.user, page]);
 
   const carregarLogs = async () => {
-    if (!auth.accessToken) return;
+    if (!auth.accessToken || !auth.user) return;
     
     setLoading(true);
     setError(null);
     
     try {
       const client = new JavaClient(() => auth.accessToken);
+      // Usar meusLogs para mostrar apenas logs do usuário logado, ordenados por data decrescente
       const params: any = {
         page,
         size,
+        sort: 'timestamp,desc', // Ordenar por timestamp decrescente (mais recentes primeiro)
       };
 
-      // Adicionar filtros apenas se preenchidos
-      if (filtros.endpoint) params.endpoint = filtros.endpoint;
-      if (filtros.metodo) params.metodo = filtros.metodo;
-      if (filtros.statusCode) params.statusCode = parseInt(filtros.statusCode);
-      if (filtros.dataInicio) params.dataInicio = filtros.dataInicio;
-      if (filtros.dataFim) params.dataFim = filtros.dataFim;
-
-      const response = await client.listarLogs(params);
+      const response = await client.meusLogs(params);
       setLogs(response.content);
       setTotalPages(response.totalPages);
       setTotalElements(response.totalElements);
